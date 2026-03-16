@@ -74,19 +74,23 @@ If the game is already running (detected via `pgrep`), it won't open another ins
 
 ## Installation
 
-### As a Claude Code plugin
+### Claude Code Plugin (Recommended)
 
-```bash
-claude plugin add mksglu/claude-adhd
+```
+/install claude-adhd@mksglu
 ```
 
-### Manual installation
+This auto-registers hooks and resolves paths via `${CLAUDE_PLUGIN_ROOT}`. Restart Claude Code after install.
+
+### Manual Installation
+
+1. Clone the repo:
 
 ```bash
-git clone https://github.com/mksglu/claude-adhd.git
+git clone https://github.com/mksglu/claude-adhd.git ~/.claude-adhd
 ```
 
-Then add the hooks to your Claude Code settings (`~/.claude/settings.json`):
+2. Add hooks to `~/.claude/settings.json`. If you already have hooks (e.g., from context-mode), merge the entries into your existing arrays:
 
 ```json
 {
@@ -97,36 +101,18 @@ Then add the hooks to your Claude Code settings (`~/.claude/settings.json`):
         "hooks": [
           {
             "type": "command",
-            "command": "node /path/to/claude-adhd/arcade-hooks.mjs --user-prompt-submit"
+            "command": "node ~/.claude-adhd/arcade-hooks.mjs --user-prompt-submit"
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|Agent|Task",
         "hooks": [
           {
             "type": "command",
-            "command": "node /path/to/claude-adhd/arcade-hooks.mjs --pre-tool-use"
-          }
-        ]
-      },
-      {
-        "matcher": "Agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node /path/to/claude-adhd/arcade-hooks.mjs --pre-tool-use"
-          }
-        ]
-      },
-      {
-        "matcher": "Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node /path/to/claude-adhd/arcade-hooks.mjs --pre-tool-use"
+            "command": "node ~/.claude-adhd/arcade-hooks.mjs --pre-tool-use"
           }
         ]
       }
@@ -135,7 +121,19 @@ Then add the hooks to your Claude Code settings (`~/.claude/settings.json`):
 }
 ```
 
-Replace `/path/to/claude-adhd` with the actual path to the cloned repo.
+> **Note:** If you use other plugins with PreToolUse hooks (like context-mode), add the claude-adhd hook as a second entry in the same `hooks` array — not as a separate matcher entry. This ensures both hooks fire for the same tool call:
+>
+> ```json
+> {
+>   "matcher": "Bash|Agent|Task",
+>   "hooks": [
+>     { "type": "command", "command": "node /path/to/other-plugin/hook.mjs" },
+>     { "type": "command", "command": "node ~/.claude-adhd/arcade-hooks.mjs --pre-tool-use" }
+>   ]
+> }
+> ```
+
+3. Restart Claude Code.
 
 ---
 
