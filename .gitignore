@@ -1,0 +1,6 @@
+node_modules/
+.highscore
+.DS_Store
+claude-adhd-sponsors.json
+*.log
+debug-hook.mjs

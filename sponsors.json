@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "updated": "2026-03-16",
+  "sponsors": [
+    {
+      "name": "Your Company",
+      "tier": "gold",
+      "text": "Your tagline here",
+      "url": "https://github.com/mksglu/claude-adhd/issues/new?template=become-a-sponsor.yml",
+      "since": "2026-03"
+    },
+    {
+      "name": "Acme Corp",
+      "tier": "silver",
+      "text": "We build cool stuff",
+      "url": "https://github.com/mksglu/claude-adhd/issues/new?template=become-a-sponsor.yml",
+      "since": "2026-03"
+    },
+    {
+      "name": "Example Inc",
+      "tier": "bronze",
+      "url": "https://github.com/mksglu/claude-adhd/issues/new?template=become-a-sponsor.yml",
+      "since": "2026-03"
+    }
+  ]
+}

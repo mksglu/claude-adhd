@@ -1,0 +1,50 @@
+name: "Become a Sponsor"
+description: "Apply to sponsor claude-adhd and have your brand displayed in the game"
+labels: ["sponsor"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: "Company / Product Name"
+      description: "Your company/product name (max 20 chars)"
+      placeholder: "Acme Corp"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tier
+    attributes:
+      label: "Sponsorship Tier"
+      options:
+        - Bronze
+        - Silver
+        - Gold
+    validations:
+      required: true
+
+  - type: input
+    id: text
+    attributes:
+      label: "Tagline"
+      description: "Short tagline, max 30 chars. Required for Silver/Gold"
+      placeholder: "Build faster with Acme"
+    validations:
+      required: false
+
+  - type: input
+    id: url
+    attributes:
+      label: "URL"
+      description: "Link to your website or product page"
+      placeholder: "https://example.com"
+    validations:
+      required: false
+
+  - type: input
+    id: email
+    attributes:
+      label: "Contact Email"
+      description: "For payment coordination"
+      placeholder: "sponsors@example.com"
+    validations:
+      required: true

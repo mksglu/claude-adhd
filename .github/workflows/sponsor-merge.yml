@@ -1,0 +1,54 @@
+name: Sponsor PR Auto-Merge
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  validate-and-merge:
+    if: github.event.label.name == 'payment-verified'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate sponsors data
+        id: validate
+        run: node scripts/validate-sponsors.mjs
+        continue-on-error: true
+
+      - name: Auto-approve and merge
+        if: steps.validate.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr review ${{ github.event.pull_request.number }} --approve
+          gh pr merge ${{ github.event.pull_request.number }} --squash --auto
+
+      - name: Post failure comment and remove label
+        if: steps.validate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "Sponsor validation failed. Please check that your \`sponsors.json\` entry meets all requirements:
+          - \`name\` must be 20 characters or fewer
+          - \`text\` must be 30 characters or fewer (required for Silver/Gold)
+          - \`tier\` must be one of: bronze, silver, gold
+          - \`url\` must be a valid URL (if provided)
+
+          Run \`node scripts/validate-sponsors.mjs\` locally to debug. Once fixed, push your changes and a maintainer will re-apply the label."
+          gh pr edit ${{ github.event.pull_request.number }} --remove-label "payment-verified"

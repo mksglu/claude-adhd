@@ -1,0 +1,25 @@
+{
+  "name": "claude-adhd",
+  "version": "1.0.0",
+  "description": "Terminal Flappy Bird that auto-opens during complex Claude Code tasks",
+  "main": "arcade-hooks.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.mjs",
+    "validate": "node scripts/validate-sponsors.mjs",
+    "game": "node flappy.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mksglu/claude-adhd.git"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "terminal-game",
+    "flappy-bird",
+    "adhd"
+  ],
+  "author": "mksglu",
+  "license": "MIT"
+}
