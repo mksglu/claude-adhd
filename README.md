@@ -76,11 +76,17 @@ If the game is already running (detected via `pgrep`), it won't open another ins
 
 ### Claude Code Plugin (Recommended)
 
+1. Add the marketplace:
 ```
-/install claude-adhd@mksglu
+/plugin marketplace add mksglu/claude-adhd
 ```
 
-This auto-registers hooks and resolves paths via `${CLAUDE_PLUGIN_ROOT}`. Restart Claude Code after install.
+2. Install the plugin:
+```
+/plugin install claude-adhd@mksglu
+```
+
+This auto-registers hooks via `${CLAUDE_PLUGIN_ROOT}`. Restart Claude Code after install.
 
 ### Manual Installation
 

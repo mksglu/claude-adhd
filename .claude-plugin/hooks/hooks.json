@@ -1,0 +1,45 @@
+{
+  "description": "claude-adhd hooks — Weighted signal scoring opens Flappy Bird during complex tasks",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/arcade-hooks.mjs --user-prompt-submit"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/arcade-hooks.mjs --pre-tool-use"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/arcade-hooks.mjs --pre-tool-use"
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/arcade-hooks.mjs --pre-tool-use"
+          }
+        ]
+      }
+    ]
+  }
+}

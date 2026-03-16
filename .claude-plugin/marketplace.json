@@ -1,0 +1,31 @@
+{
+  "name": "claude-adhd",
+  "owner": {
+    "name": "Mert Koseoğlu",
+    "email": "bm.ksglu@gmail.com"
+  },
+  "metadata": {
+    "description": "Claude Code plugins by Mert Koseoğlu",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "claude-adhd",
+      "source": "./",
+      "description": "Terminal Flappy Bird that auto-opens during complex Claude Code tasks. Weighted signal scoring, cross-platform terminal adapter, sponsor system.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mert Koseoğlu"
+      },
+      "category": "productivity",
+      "keywords": [
+        "game",
+        "flappy-bird",
+        "terminal",
+        "adhd",
+        "hooks",
+        "waiting"
+      ]
+    }
+  ]
+}
