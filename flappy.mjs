@@ -68,6 +68,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SCORE_FILE = join(__dirname, '.highscore');
 const VERSION = '1.0.0';
 
+// Complexity score passed from hook via --score arg
+const complexityArg = process.argv.indexOf('--score');
+const complexityScore = complexityArg !== -1 ? parseInt(process.argv[complexityArg + 1]) || 0 : 0;
+
 try { highScore = parseInt(readFileSync(SCORE_FILE, 'utf8')) || 0; } catch {}
 
 function saveHighScore() {
@@ -299,8 +303,13 @@ function render() {
     const lines = [
       `${BOLD}${YELLOW}~~ FLAPPY BIRD ~~${R} ${DIM}v${VERSION}${R}`,
       ``,
-      `${DIM}Press SPACE to start${R}`,
     ];
+    if (complexityScore > 0) {
+      lines.push(`${CYAN}Claude is working on a complex task (score: ${complexityScore})${R}`);
+      lines.push(`${DIM}Play while you wait!${R}`);
+    }
+    lines.push(``);
+    lines.push(`${DIM}Press SPACE to start${R}`);
 
     if (sponsors.length > 0) {
       lines.push(``);

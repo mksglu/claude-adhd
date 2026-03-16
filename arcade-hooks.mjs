@@ -414,29 +414,17 @@ async function handleUserPromptSubmit() {
     savePromptScore(result);
   }
 
-  // 3. If high enough, open game directly from UPS (no waiting for PreToolUse)
+  // 3. If high enough, mark pending — PreToolUse will open + notify
   const decision = shouldSuggestGame(result.score);
   if (decision.action === 'suggest') {
-    const alreadyRunning = isGameProcessRunning();
     const gamePath = join(__dirname, 'flappy.mjs');
-    if (alreadyRunning) {
-      saveGameState({ opened: true, alreadyOpen: true, justOpened: false, gamePath });
-      debugLog('handleUserPromptSubmit: game already running (process detected)');
-    } else {
-      // Open game NOW — don't wait for PreToolUse
-      const adapterPath = join(__dirname, 'terminal-adapter.mjs');
-      try {
-        execSync(`node "${adapterPath}" --hook-open "${gamePath}"`, {
-          stdio: 'ignore',
-          timeout: 5000,
-        });
-        saveGameState({ opened: true, alreadyOpen: false, justOpened: true, gamePath });
-        debugLog('handleUserPromptSubmit: game opened directly from UPS');
-      } catch (e) {
-        debugLog(`handleUserPromptSubmit: failed to open: ${e?.message}`);
-        saveGameState({ pending: true, opened: false, gamePath });
-      }
-    }
+    const alreadyRunning = isGameProcessRunning();
+    saveGameState({
+      pending: !alreadyRunning,
+      opened: alreadyRunning,
+      gamePath,
+    });
+    debugLog(`handleUserPromptSubmit: ${alreadyRunning ? 'game already running' : 'pending for PreToolUse'}`);
   }
 
   // 4. Periodic update check (non-blocking, max once per hour)
@@ -466,40 +454,32 @@ async function handlePreToolUse() {
 
   debugLog(`handlePreToolUse: tool=${toolName} toolScore=${toolResult.score} promptScore=${promptResult?.score || 0} combined=${combinedScore}`);
 
-  // 4. Read game state — UPS already opened the game, we just notify Claude
+  // 4. Open game + notify Claude (both in same hook call — this is the pattern that works)
   const gameState = loadGameState();
   const adapterPath = join(__dirname, 'terminal-adapter.mjs');
   const gamePath = (gameState?.gamePath) || join(__dirname, 'flappy.mjs');
   const combined = { score: combinedScore, signals: combinedSignals };
+  const processRunning = isGameProcessRunning();
 
-  if (combinedScore >= DEFAULT_CONFIG.suggestThreshold && gameState?.justOpened) {
-    // Game was JUST opened by UPS — notify Claude (one-time)
-    saveGameState({ ...gameState, justOpened: false });
-    const ctx = buildSuggestionContext(combined, adapterPath, gamePath, false);
-    const output = JSON.stringify({ decision: 'allow', additionalContext: ctx });
-    debugLog(`handlePreToolUse: notifying Claude about new game (score=${combinedScore})`);
-    process.stdout.write(output + '\n');
-  } else if (combinedScore >= DEFAULT_CONFIG.suggestThreshold && gameState?.alreadyOpen) {
-    // Game was already running — notify Claude (one-time)
-    saveGameState({ ...gameState, alreadyOpen: false });
-    const ctx = buildSuggestionContext(combined, adapterPath, gamePath, true);
-    const output = JSON.stringify({ decision: 'allow', additionalContext: ctx });
-    debugLog(`handlePreToolUse: notifying Claude — game already open (score=${combinedScore})`);
-    process.stdout.write(output + '\n');
-  }
+  if (combinedScore >= DEFAULT_CONFIG.suggestThreshold) {
+    let alreadyOpen = processRunning;
 
-  // 5. One-time update notification (injected as additionalContext)
-  const updateInfo = consumeUpdateNotification();
-  if (updateInfo) {
-    const upgradeCmd = `node ${join(__dirname, 'arcade-hooks.mjs')} --upgrade`;
-    const updateCtx = `<arcade-update current="${updateInfo.current}" latest="${updateInfo.latest}">` +
-      `A new version of claude-adhd is available (current: ${updateInfo.current}, latest: ${updateInfo.latest}). ` +
-      `Run \`${upgradeCmd}\` to update.` +
-      `</arcade-update>`;
-    // If we haven't already written output, write it now
-    const output = JSON.stringify({ decision: 'allow', additionalContext: updateCtx });
-    debugLog(`handlePreToolUse: update notification injected (${updateInfo.current} → ${updateInfo.latest})`);
-    process.stdout.write(output + '\n');
+    // Open game if not running
+    if (!processRunning && gameState?.pending) {
+      try {
+        execSync(`node "${adapterPath}" --hook-open "${gamePath}"`, { stdio: 'ignore', timeout: 5000 });
+        saveGameState({ pending: false, opened: true, gamePath });
+        debugLog(`handlePreToolUse: game opened (score=${combinedScore})`);
+        alreadyOpen = false;
+      } catch (e) {
+        debugLog(`handlePreToolUse: failed to open: ${e?.message}`);
+      }
+    }
+
+    // Notify Claude
+    const ctx = buildSuggestionContext(combined, adapterPath, gamePath, alreadyOpen);
+    process.stdout.write(JSON.stringify({ decision: 'allow', additionalContext: ctx }) + '\n');
+    debugLog(`handlePreToolUse: notification sent (alreadyOpen=${alreadyOpen})`);
   }
 
   debugLog('handlePreToolUse: done');

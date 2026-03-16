@@ -42,8 +42,9 @@ export function detectTerminal(env = process.env) {
 // ── Open Command ────────────────────────────────────────
 // Returns the shell command to open a split pane running the game.
 
-export function getOpenCommand(terminalType, gamePath, platform = detectPlatform()) {
-  const cmd = `node ${gamePath}`;
+export function getOpenCommand(terminalType, gamePath, platform = detectPlatform(), extraArgs = []) {
+  const extra = extraArgs.length ? ' ' + extraArgs.join(' ') : '';
+  const cmd = `node ${gamePath}${extra}`;
 
   switch (terminalType) {
     case 'tmux':
@@ -125,6 +126,13 @@ function main() {
   const mode = args[0] || '--detect';
   const gamePath = args[1] || join(__dirname, 'flappy.mjs');
 
+  // Pass-through extra args (e.g., --score 14) to the game
+  const extraArgs = [];
+  const scoreIdx = args.indexOf('--score');
+  if (scoreIdx !== -1 && args[scoreIdx + 1]) {
+    extraArgs.push('--score', args[scoreIdx + 1]);
+  }
+
   const terminal = detectTerminal();
   const platform = detectPlatform();
 
@@ -136,7 +144,7 @@ function main() {
     }
 
     case '--hook-open': {
-      const cmd = getOpenCommand(terminal.type, gamePath, platform);
+      const cmd = getOpenCommand(terminal.type, gamePath, platform, extraArgs);
       if (!cmd) {
         console.error(`No split pane support for: ${terminal.type}`);
         process.exit(1);
