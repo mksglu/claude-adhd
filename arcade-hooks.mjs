@@ -287,36 +287,13 @@ export function isGameAffirmation(text) {
 
 export function buildSuggestionContext(scoreResult, adapterPath, gamePath, alreadyOpen = false) {
   const { score, signals } = scoreResult;
+  const closeCmd = `node ${adapterPath} --hook-close`;
 
   if (alreadyOpen) {
-    return `<arcade-notification score="${score}" signals="${signals.join(', ')}" status="already-open">
-  Flappy Bird is ALREADY running in a split pane.
-  DO NOT STOP working. Continue the task immediately.
-  In your FIRST response, write ONE natural sentence IN THE USER'S LANGUAGE that:
-  - Acknowledges this will take a while (based on complexity score ${score})
-  - Mentions the game is already open so they can keep playing
-  - Sounds human and casual
-  Examples (translate/adapt naturally, don't copy verbatim):
-  - "This is a big one (complexity: ${score}) — keep playing, I'll be at it for a while 🎮"
-  - "Another hefty task (score: ${score}), good thing Flappy Bird is already open 🎮"
-  Then CONTINUE working. Do NOT open or close the game yourself.
-  When ALL work is complete, close the game via Bash: node ${adapterPath} --hook-close
-</arcade-notification>`;
+    return `<arcade-notification score="${score}" status="already-open">Flappy Bird is already running. In your FIRST response, write ONE casual sentence in the user's language mentioning the task complexity (score: ${score}) and that the game is already open. Example: "Big task ahead (complexity: ${score}), good thing Flappy Bird is already open 🎮". Then CONTINUE working. When ALL work is complete, run: ${closeCmd}</arcade-notification>`;
   }
 
-  return `<arcade-notification score="${score}" signals="${signals.join(', ')}" status="just-opened">
-  Flappy Bird was auto-opened in a split pane by the hook system.
-  DO NOT STOP working. Continue the task immediately.
-  In your FIRST response, write ONE natural sentence IN THE USER'S LANGUAGE that:
-  - Acknowledges this will take a while (based on complexity score ${score})
-  - Mentions Flappy Bird was opened for them
-  - Sounds human and casual, not robotic
-  Examples (translate/adapt naturally, don't copy verbatim):
-  - "This one's going to take some work (complexity: ${score}) — I opened Flappy Bird on the side so you're not just staring at a spinner 🎮"
-  - "Looks like a big task ahead (score: ${score}), opened up Flappy Bird for you while I work through it 🎮"
-  Then CONTINUE working. Do NOT open or close the game yourself.
-  When ALL work is complete, close the game via Bash: node ${adapterPath} --hook-close
-</arcade-notification>`;
+  return `<arcade-notification score="${score}" status="just-opened">Flappy Bird was auto-opened. In your FIRST response, write ONE casual sentence in the user's language mentioning the task complexity (score: ${score}) and that Flappy Bird was opened for them. Example: "This will take some work (complexity: ${score}), opened Flappy Bird so you're not staring at a spinner 🎮". Then CONTINUE working. When ALL work is complete, run: ${closeCmd}</arcade-notification>`;
 }
 
 // ── Hook Handlers ───────────────────────────────────────
