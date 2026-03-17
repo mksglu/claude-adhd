@@ -6,6 +6,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-108%20passing-brightgreen)](#development)
 
+<div align="center">
+
+https://github.com/user-attachments/assets/1cdd9d53-95f6-434e-809f-9bbcaf4fd383
+
+</div>
+
 ---
 
 ## How it works
